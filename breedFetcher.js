@@ -1,20 +1,21 @@
 const request = require('request');
 
-if (process.argv.length !== 3) {
-  return console.error('Usage: node breedFetcher.js breedName');
-}
+const fetchBreedDescription = (breedName, callback) => {
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
+    if (error) {
+      return callback(error, null);
+    }
 
-const query = process.argv[2];
+    const data = JSON.parse(body);
 
-request(`https://api.thecatapi.com/v1/breeds/search?q=${query}`, (error, response, body) => {
-  if (error) {
-    return console.error('Error accessing API!');
-  }
+    if (!data[0]) {
+      return callback('Invalid query!', null);
+    }
+    return callback(null, data[0].description.trim());
+  });
+};
 
-  const data = JSON.parse(body);
-  if (!body.description) {
-    return console.error('Invalid query!');
-  }
 
-  console.log(data[0].description);
-});
+
+
+module.exports = {fetchBreedDescription};
